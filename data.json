@@ -1,0 +1,28 @@
+[
+  {
+    "summa": 100,
+    "payment_method": "наличные",
+    "course": 3,
+    "user": 6
+  },
+    {
+    "summa": 200,
+    "payment_method": "наличные",
+    "course": 1,
+    "user": 6
+  },
+    {
+    "summa": 500,
+    "payment_method": "перевод на счет",
+    "course": 2,
+    "user": 6
+  },
+    {
+    "summa": 700,
+    "payment_method": "наличные",
+    "course": 1,
+    "user": 6
+  }
+]
+
+

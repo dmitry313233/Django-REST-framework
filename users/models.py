@@ -3,11 +3,12 @@ from django.db import models
 
 
 class User(AbstractUser):
-    name = models.CharField(max_length=50, verbose_name='имя')
-    phone = models.IntegerField(verbose_name='номер телефона')
-    city = models.CharField(max_length=80, verbose_name='город')
+    username = None
+    name = models.CharField(max_length=50, null=True, blank=True, verbose_name='имя')
+    phone = models.IntegerField(null=True, blank=True, verbose_name='номер телефона')
+    city = models.CharField(null=True, blank=True, max_length=80, verbose_name='город')
     avatar = models.ImageField(upload_to='', null=True, blank=True, verbose_name='аватар')
-    email = models.EmailField(unique=True, verbose_name='почта')  # все поля от обычного пользователя, но авторизацию заменить на email; Уточнить как это?
+    email = models.EmailField(unique=True, verbose_name='почта')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
