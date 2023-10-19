@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from users.models import User
@@ -9,6 +10,8 @@ class Course(models.Model):
     name = models.CharField(max_length=70, verbose_name='название')
     avatar = models.ImageField(upload_to='', null=True, blank=True, verbose_name='аватар')
     description = models.TextField(max_length=150, null=True, blank=True, verbose_name='описание')
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name} {self.description}'
@@ -25,7 +28,7 @@ class Lesson(models.Model):
     url = models.URLField(max_length=30, unique=True, null=True, blank=True, verbose_name='Email')
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='урок', related_name='lessons')  # related_name это прописывается для обращения из модели на которую ссылается это поле!
-
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return f'{self.name} {self.url}'
 
@@ -45,7 +48,7 @@ class Payment(models.Model):   # новая домашка
     summa = models.PositiveIntegerField(default=0, verbose_name='сумма оплаты')
     payment_method = models.CharField(max_length=15, choices=METHOD, verbose_name='способ оплаты: наличные или перевод на счет')
 
-    course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='урок')
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='урок')  # CASCADE означает - не обязательное поле
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
 
     def __str__(self):
@@ -54,3 +57,15 @@ class Payment(models.Model):   # новая домашка
     class Meta:
         verbose_name = 'платёж'
         verbose_name_plural = 'платежи'
+
+
+# class Subscription(models.Model):
+#     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='курс')
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
+#
+#     def __str__(self):
+#         return f'{self.user.name} {self.course.name}'
+#
+#     class Meta:
+#         verbose_name = 'подписка'
+#         verbose_name_plural = 'подписки'
