@@ -1,14 +1,16 @@
 from rest_framework import serializers
 
-from course.models import Course, Lesson, Payment
-
+from course.models import Course, Lesson, Payment, Subscription
+from course.validators import ValidatorUrl
 
 
 class LessonSerializer(serializers.ModelSerializer): # Это сериалайзер. Этот сериалайзер описывает то что я буду видеть в Postman
+    url = serializers.URLField(validators=[ValidatorUrl()], required=False)  # required=False это позволяет пренебречь этим полем
+
     class Meta:
         model = Lesson
         fields = '__all__'
-        #validators = [Validatot_url(field='name')]
+
 
 
 class CourseSerializer(serializers.ModelSerializer):  # Описываем сериализатор
@@ -30,8 +32,8 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class SubscriptionSerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = Subscription
-#         fields = ('course', 'user')
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ('course', 'user')

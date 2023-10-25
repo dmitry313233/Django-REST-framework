@@ -7,4 +7,4 @@ from course.models import Course
 
 @admin.register(Course)
 class MailingSettings(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description', 'id')

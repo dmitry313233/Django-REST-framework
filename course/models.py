@@ -29,6 +29,7 @@ class Lesson(models.Model):
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='урок', related_name='lessons')  # related_name это прописывается для обращения из модели на которую ссылается это поле!
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+
     def __str__(self):
         return f'{self.name} {self.url}'
 
@@ -59,13 +60,13 @@ class Payment(models.Model):   # новая домашка
         verbose_name_plural = 'платежи'
 
 
-# class Subscription(models.Model):
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='курс')
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
-#
-#     def __str__(self):
-#         return f'{self.user.name} {self.course.name}'
-#
-#     class Meta:
-#         verbose_name = 'подписка'
-#         verbose_name_plural = 'подписки'
+class Subscription(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='курс')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
+
+    def __str__(self):
+        return f'{self.user.name} {self.course.name}'
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'подписки'
