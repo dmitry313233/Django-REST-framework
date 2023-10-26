@@ -6,17 +6,18 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from course.models import Course, Lesson, Payment, Subscription
+from course.paginators import CoursePaginator
 from course.permissions import IsModerator, IsOwnerOrStaff, IsSuperuser
 from course.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 class CourseViewSet(viewsets.ModelViewSet):
+    """View set for Course"""
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     permission_classes = [IsAuthenticated]  # Это пишем для того чтобы без аунтефикации не было доступа к курсам(cource)
-
-    # pagination_class = CoursePaginator
+    pagination_class = CoursePaginator
 
     def perform_create(self, serializer):  # Для сохранения владельца
         new_lesson = serializer.save()
@@ -45,8 +46,7 @@ class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [AllowAny]  # Это пишем для того чтобы без аунтефикации не было доступа к урокам(Lesson)
-
-    # pagination_class = CoursePaginator
+    pagination_class = CoursePaginator
 
     def get_queryset(self):
         """Получение объектов Lesson в зависимости от пользователя"""
@@ -73,8 +73,7 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
-    permission_classes = [
-        IsOwnerOrStaff | IsModerator | IsSuperuser]  # ~ это означает not
+    permission_classes = [IsOwnerOrStaff | IsModerator | IsSuperuser]  # ~ это означает not
 
 
 # class PaymentsCreateAPIView(generics.CreateAPIView):
