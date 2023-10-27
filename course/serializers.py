@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from course.models import Course, Lesson, Payment, Subscription
+from course.services import conver_currensies
+
 from course.validators import ValidatorUrl
 
 
@@ -16,10 +18,14 @@ class LessonSerializer(serializers.ModelSerializer): # Это сериалайз
 class CourseSerializer(serializers.ModelSerializer):  # Описываем сериализатор
     count_lesson = serializers.SerializerMethodField()   #2 Метод подсчёта уроков
     lessons = LessonSerializer(many=True, read_only=True)  # Заданиe 3  # Кастомное поле(дополнительное)  Тоесть переменная lessons равна всем значениям LessonSerializer
+    usd_price = serializers.SerializerMethodField()  # !!!!!!!
 
     class Meta:
         model = Course
-        fields = ['name', 'description', 'lessons', 'count_lesson']
+        fields = ['id', 'name', 'description', 'lessons', 'count_lesson', 'usd_price', 'amount']
+
+    def get_usd_price(self, instance):   # !!!!!
+        return conver_currensies(instance.amount, instance.name)  # Возвращаем метод в services, instance.amount обращаемся к Course.amount
 
     def get_count_lesson(self, instance):    #2 Метод подсчёта уроков
         return instance.lessons.all().count()

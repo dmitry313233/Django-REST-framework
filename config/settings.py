@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+import stripe
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -149,12 +151,4 @@ REST_FRAMEWORK = {           # Настройки JWT-токенов
     ]
 }
 
-# CORS_ALLOWED_ORIGINS = [
-#     '<http://localhost:8000>',  # Замените на адрес вашего фронтенд-сервера
-# ]
-#
-# CSRF_TRUSTED_ORIGINS = [
-#     "https://read-and-write.example.com", #  Замените на адрес вашего фронтенд-сервера
-# ]
-#
-# CORS_ALLOW_ALL_ORIGINS = False
+stripe.api_key = "sk_test_51O5OaREACBiS2uPOBXY2YGEER0cfdGQl90CqKxJ7aygxvkLMYVwmu0GAikXhMdcO7Vd0mdiMF1usTv2CR4TuHXbD00V6Ixpw6P"

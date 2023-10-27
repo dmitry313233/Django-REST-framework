@@ -11,9 +11,11 @@ from course.permissions import IsModerator, IsOwnerOrStaff, IsSuperuser
 from course.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from course.services import conver_currensies
+
 
 class CourseViewSet(viewsets.ModelViewSet):
-    """View set for Course"""
+    """View set для курса"""
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
     permission_classes = [IsAuthenticated]  # Это пишем для того чтобы без аунтефикации не было доступа к курсам(cource)
@@ -25,8 +27,8 @@ class CourseViewSet(viewsets.ModelViewSet):
         new_lesson.save()
 
 
-class LessonCreateAPIView(
-    generics.CreateAPIView):  # Это дженерик, спомощью дженерика мы уменьшаем количество кода по сравнению если бы мы писали в viewsets!
+class LessonCreateAPIView(generics.CreateAPIView):  # Это дженерик, спомощью дженерика мы уменьшаем количество кода по сравнению если бы мы писали в viewsets!
+    """Создание для урока"""
     serializer_class = LessonSerializer  # Отправляем данные
     permission_classes = [IsAuthenticated, ~IsModerator]  # ~ это означает not  Было IsAuthenticated!!!
 
@@ -43,6 +45,7 @@ class LessonCreateAPIView(
 
 
 class LessonListAPIView(generics.ListAPIView):
+    """Список уроков"""
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [AllowAny]  # Это пишем для того чтобы без аунтефикации не было доступа к урокам(Lesson)
@@ -51,7 +54,6 @@ class LessonListAPIView(generics.ListAPIView):
     def get_queryset(self):
         """Получение объектов Lesson в зависимости от пользователя"""
         queryset = super().get_queryset()
-
         if self.request.user.groups.filter(name='Модератор').exists():
             return queryset.all()
         elif self.request.user:
@@ -61,17 +63,20 @@ class LessonListAPIView(generics.ListAPIView):
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
+    """Детали урока"""
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
+    """Редактирование для урока"""
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsOwnerOrStaff]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
+    """Удаление для урока"""
     queryset = Lesson.objects.all()
     permission_classes = [IsOwnerOrStaff | IsModerator | IsSuperuser]  # ~ это означает not
 
@@ -81,6 +86,7 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 #
 #
 class PaymentListAPIView(generics.ListAPIView):
+    """Список платежей"""
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -89,7 +95,8 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 @api_view(['GET'])
-def Subscription_setup(request, pk):
+def subscription_setup(request, pk):
+    """Контроллер для осуществления подписки на курс"""
     try:
         course = Course.objects.get(pk=pk)  # В переменную course добавляем  конкретный курс, который указал пользователь в виде рк
     except Course.DoesNotExist:
@@ -104,3 +111,15 @@ def Subscription_setup(request, pk):
             serializer.save()
             return Response({'Success': "Вы подписались"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def payment_for_course(request, pk):
+    try:
+        course = Course.objects.get(pk=pk)
+        price_link = conver_currensies(course.amount, course.name)
+    except Course.DoesNotExist:
+        return Response({'Error': "Курса не существует"}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'price_link': price_link})
+

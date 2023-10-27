@@ -33,9 +33,9 @@ class LessonTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_lesson(self):  # Тестируем создание урока
-        update_data = {'id': 1, 'name': 'new_test', 'description': 'test', 'course': 1, 'owner': 1}
+        data = {'name': 'new_test', 'description': 'test', 'course': self.lesson.pk, 'owner': self.lesson.pk}
         response = self.client.post(
-            reverse('course:lesson/create'), data=update_data    # Это путь в url
+            reverse('course:lesson/create'), data=data    # Это путь в url
         )
 
         #print(response.json())
@@ -72,7 +72,7 @@ class LessonTestCase(APITestCase):
         )
 
         self.assertEqual(
-            response.json(), [{'id': 4, 'url': None, 'name': 'test', 'description': 'test', 'avatar': None, 'course': 3, 'owner': 3}]
+            response.json()['results'], [{'id': self.lesson.pk, 'url': None, 'name': 'test', 'description': 'test', 'avatar': None, 'course': self.course.pk, 'owner': self.user.pk}]
 
         )
 
@@ -91,7 +91,7 @@ class LessonTestCase(APITestCase):
 
     def test_lesson_update(self):
 
-        update_data = {'id': 4, 'name': 'new_test', 'description': 'test', 'course': 3, 'owner': 3}
+        update_data = {'id': self.lesson.pk, 'name': 'new_test', 'description': 'test', 'course': self.course.pk, 'owner': self.user.pk}
         response = self.client.put(
             reverse('course:lesson_update', args=[self.lesson.pk]),
             data=update_data
@@ -99,9 +99,13 @@ class LessonTestCase(APITestCase):
 
         #print(response.json())
         self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST
+            response.status_code, status.HTTP_200_OK
         )
+        #print(Course.objects.filter(pk=self.lesson.pk).first())
 
+        self.assertEqual(
+            response.json()['name'], 'new_test'
+        )
         self.assertFalse(
             Course.objects.filter(pk=self.lesson.pk).exists()
         )

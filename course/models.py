@@ -10,6 +10,7 @@ class Course(models.Model):
     name = models.CharField(max_length=70, verbose_name='название')
     avatar = models.ImageField(upload_to='', null=True, blank=True, verbose_name='аватар')
     description = models.TextField(max_length=150, null=True, blank=True, verbose_name='описание')
+    amount = models.IntegerField(default=1000, verbose_name='цена')  # !!!!!!
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
