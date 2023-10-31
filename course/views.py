@@ -4,15 +4,15 @@ from rest_framework import viewsets, generics, status
 from rest_framework.decorators import api_view
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from course.models import Course, Lesson, Payment, Subscription
 from course.paginators import CoursePaginator
 from course.permissions import IsModerator, IsOwnerOrStaff, IsSuperuser
 from course.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
 from course.services import conver_currensies
-
+from course.tasks import sending_update
 
 class CourseViewSet(viewsets.ModelViewSet):
     """View set для курса"""
@@ -20,6 +20,30 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     permission_classes = [IsAuthenticated]  # Это пишем для того чтобы без аунтефикации не было доступа к курсам(cource)
     pagination_class = CoursePaginator
+
+    # def update(self, request, *args, **kwargs):
+    #     partial = kwargs.pop('partial', False)
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
+    #     sending_update.delay(instance.pk, request)
+    #     if getattr(instance, '_prefetched_objects_cache', None):
+    #         # If 'prefetch_related' has been applied to a queryset, we need to
+    #         # forcibly invalidate the prefetch cache on the instance.
+    #         instance._prefetched_objects_cache = {}
+    #
+    #     return serializer.data
+        #return super().update(request, *args, **kwargs)
+
+
+    def perform_update(self, serializer):  # Для отправки писем об обновлении курса  !!!!!!!
+        serializer.save()
+        instance = self.get_object()
+        url = self.request.build_absolute_uri(reverse('course:course-detail', kwargs={'pk': instance.pk}))
+        sending_update.delay(instance.pk, url)
+        print('Сообщение отправлено')
+        #sending_update.delay(new_subscription)
 
     def perform_create(self, serializer):  # Для сохранения владельца
         new_lesson = serializer.save()
