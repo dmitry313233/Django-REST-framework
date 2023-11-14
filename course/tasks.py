@@ -27,8 +27,8 @@ def sending_update(pk, url):
             recipient_list=recipients
         )
         print(recipients, result)
-#
-#
+
+
 def user_active():
     today = timezone.now()
     user_apdate = User.objects.filter(last_login__lte=(today - timedelta(days=30)), is_active=True)

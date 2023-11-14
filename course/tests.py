@@ -82,7 +82,7 @@ class LessonTestCase(APITestCase):
 
     def test_lesson_retrieve(self):
         response = self.client.get(
-            reverse('course:lesson_get', args=[self.lesson.pk])  # не работает рк!
+            reverse('course:lesson_get', args=[self.lesson.pk])
         )
 
         self.assertEqual(

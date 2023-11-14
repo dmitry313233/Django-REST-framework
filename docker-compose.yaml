@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+
+  redis:
+    image: redis
+    container_name: redis_app
+    ports:
+      - '6379'
+
+
+
+  db:
+    image: postgres
+    container_name: db_app
+    ports:
+      - '5432'
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env-non-dev
+    volumes:
+      - pg_data1:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  app:
+    build: .
+    tty: true
+    env_file:
+      - .env-non-dev
+    container_name: fastapi_app
+    ports:
+      - '9999:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+
+
+  celery:
+    build: .
+    tty: true
+    container_name: celery_app
+    command: celery -A config worker -l INFO
+    depends_on:
+      - redis
+      - app
+
+  celery_beat:
+    build: .
+    tty: true
+    container_name: celery_beat_app
+    command: bash -c "sleep 20 && celery -A config beat -l info -S django"
+    depends_on:
+      - redis
+      - app
+
+volumes:
+  pg_data1:
